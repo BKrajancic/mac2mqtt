@@ -145,7 +145,7 @@ func commandDisplayWake() {
 }
 
 func commandKillApp(app string) {
-	runCommand("killall " + app)
+	runCommand("sh pkill -SIGKILL " + app)
 }
 
 func commandToggleMuteSkype() {
