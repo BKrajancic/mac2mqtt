@@ -148,6 +148,15 @@ func commandKillApp(app string) {
 	runCommand("killall " + app)
 }
 
+func commandToggleMuteSkype(app string) {
+	runCommand("osascript -e 'tell application \"System Events\" to keystroke \"m\" using {command down, shift down}'")
+}
+
+func commandToggleCameraSkype(app string) {
+	runCommand("open -a")
+	runCommand("osascript -e 'tell application \"System Events\" to keystroke \"k\" using {command down, shift down}'")
+}
+
 func commandShutdown() {
 	if os.Getuid() == 0 {
 		// if the program is run by root user we are doing the most powerfull shutdown - that always shuts down the computer
