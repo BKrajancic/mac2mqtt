@@ -148,11 +148,11 @@ func commandKillApp(app string) {
 	runCommand("killall " + app)
 }
 
-func commandToggleMuteSkype(app string) {
+func commandToggleMuteSkype() {
 	runCommand("osascript -e 'tell application \"System Events\" to keystroke \"m\" using {command down, shift down}'")
 }
 
-func commandToggleCameraSkype(app string) {
+func commandToggleCameraSkype() {
 	runCommand("open -a")
 	runCommand("osascript -e 'tell application \"System Events\" to keystroke \"k\" using {command down, shift down}'")
 }
@@ -213,7 +213,6 @@ func listen(client mqtt.Client, topic string) {
 	token := client.Subscribe(topic, 0, func(client mqtt.Client, msg mqtt.Message) {
 
 		if msg.Topic() == getTopicPrefix()+"/command/volume" {
-
 			i, err := strconv.Atoi(string(msg.Payload()))
 			if err == nil && i >= 0 && i <= 100 {
 				setVolume(i)
@@ -260,6 +259,18 @@ func listen(client mqtt.Client, topic string) {
 		if msg.Topic() == getTopicPrefix()+"/command/shutdown" {
 			if string(msg.Payload()) == "shutdown" {
 				commandShutdown()
+			}
+		}
+
+		if msg.Topic() == getTopicPrefix()+"/command/ToggleCameraSkype" {
+			if string(msg.Payload()) == "ToggleCameraSkype" {
+				commandToggleCameraSkype()
+			}
+		}
+
+		if msg.Topic() == getTopicPrefix()+"/command/ToggleMuteSkype" {
+			if string(msg.Payload()) == "ToggleMuteSkype" {
+				commandToggleMuteSkype()
 			}
 		}
 	})
