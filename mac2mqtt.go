@@ -149,7 +149,7 @@ func commandKillApp(app string) {
 }
 
 func commandToggleMuteSkype() {
-	runCommand("osascript -e", "'tell application \"System Events\" to keystroke \"m\" using {command down, shift down}'")
+	runCommand("osascript", "-e 'tell application \"System Events\" to keystroke \"m\" using {command down, shift down}'")
 }
 
 func commandToggleCameraSkype() {
