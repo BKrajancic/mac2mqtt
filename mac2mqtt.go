@@ -234,7 +234,7 @@ func listen(client mqtt.Client, topic string) {
 			}
 		}
 
-		if msg.Topic() == getTopicPrefix()+"/command/killApp" {
+		if msg.Topic() == getTopicPrefix()+"/command/killapp" {
 			commandKillApp(string(msg.Payload()))
 		}
 
@@ -262,14 +262,14 @@ func listen(client mqtt.Client, topic string) {
 			}
 		}
 
-		if msg.Topic() == getTopicPrefix()+"/command/ToggleCameraSkype" {
-			if string(msg.Payload()) == "ToggleCameraSkype" {
+		if msg.Topic() == getTopicPrefix()+"/command/togglecameraskype" {
+			if string(msg.Payload()) == "togglecameraskype" {
 				commandToggleCameraSkype()
 			}
 		}
 
-		if msg.Topic() == getTopicPrefix()+"/command/ToggleMuteSkype" {
-			if string(msg.Payload()) == "ToggleMuteSkype" {
+		if msg.Topic() == getTopicPrefix()+"/command/togglemuteskype" {
+			if string(msg.Payload()) == "togglemuteskype" {
 				commandToggleMuteSkype()
 			}
 		}
