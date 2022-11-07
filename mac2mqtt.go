@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"os"
@@ -12,6 +11,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"gopkg.in/yaml.v2"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
@@ -26,7 +27,6 @@ type config struct {
 }
 
 func (c *config) getConfig() *config {
-
 	configContent, err := ioutil.ReadFile("mac2mqtt.yaml")
 	if err != nil {
 		log.Fatal(err)
@@ -57,7 +57,6 @@ func (c *config) getConfig() *config {
 }
 
 func getHostname() string {
-
 	hostname, err := os.Hostname()
 
 	if err != nil {
@@ -141,8 +140,15 @@ func commandDisplaySleep() {
 	runCommand("pmset", "displaysleepnow")
 }
 
-func commandShutdown() {
+func commandDisplayWake() {
+	runCommand("/usr/bin/caffeinate", "-u", "-t", "5")
+}
 
+func commandKillApp(app string) {
+	runCommand("killall " + app)
+}
+
+func commandShutdown() {
 	if os.Getuid() == 0 {
 		// if the program is run by root user we are doing the most powerfull shutdown - that always shuts down the computer
 		runCommand("shutdown", "-h", "now")
@@ -150,7 +156,6 @@ func commandShutdown() {
 		// if the program is run by ordinary user we are trying to shutdown, but it may fail if the other user is logged in
 		runCommand("/usr/bin/osascript", "-e", "tell app \"System Events\" to shut down")
 	}
-
 }
 
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
@@ -173,7 +178,6 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 }
 
 func getMQTTClient(ip, port, user, password string) mqtt.Client {
-
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(fmt.Sprintf("tcp://%s:%s", ip, port))
 	opts.SetUsername(user)
@@ -203,57 +207,52 @@ func listen(client mqtt.Client, topic string) {
 
 			i, err := strconv.Atoi(string(msg.Payload()))
 			if err == nil && i >= 0 && i <= 100 {
-
 				setVolume(i)
-
 				updateVolume(client)
 				updateMute(client)
-
 			} else {
 				log.Println("Incorrect value")
 			}
-
 		}
 
 		if msg.Topic() == getTopicPrefix()+"/command/mute" {
-
 			b, err := strconv.ParseBool(string(msg.Payload()))
 			if err == nil {
 				setMute(b)
-
 				updateVolume(client)
 				updateMute(client)
-
 			} else {
 				log.Println("Incorrect value")
 			}
+		}
 
+		if msg.Topic() == getTopicPrefix()+"/command/killApp" {
+			commandKillApp(string(msg.Payload()))
 		}
 
 		if msg.Topic() == getTopicPrefix()+"/command/sleep" {
-
 			if string(msg.Payload()) == "sleep" {
 				commandSleep()
 			}
-
 		}
 
 		if msg.Topic() == getTopicPrefix()+"/command/displaysleep" {
-
 			if string(msg.Payload()) == "displaysleep" {
 				commandDisplaySleep()
 			}
+		}
 
+		if msg.Topic() == getTopicPrefix()+"/command/displaywake" {
+			if string(msg.Payload()) == "displaywake" {
+				commandDisplayWake()
+			}
 		}
 
 		if msg.Topic() == getTopicPrefix()+"/command/shutdown" {
-
 			if string(msg.Payload()) == "shutdown" {
 				commandShutdown()
 			}
-
 		}
-
 	})
 
 	token.Wait()
@@ -292,7 +291,6 @@ func updateBattery(client mqtt.Client) {
 }
 
 func main() {
-
 	log.Println("Started")
 
 	var c config
@@ -313,7 +311,6 @@ func main() {
 			case _ = <-volumeTicker.C:
 				updateVolume(mqttClient)
 				updateMute(mqttClient)
-
 			case _ = <-batteryTicker.C:
 				updateBattery(mqttClient)
 			}
@@ -321,5 +318,4 @@ func main() {
 	}()
 
 	wg.Wait()
-
 }
